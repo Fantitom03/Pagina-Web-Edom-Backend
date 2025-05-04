@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import authRepository from './repositories/authRepository.js';
+import authRepository from '#repositories/authRepository.js';
 import { generateToken } from '../utils/token.js';
 
 class AuthService {
