@@ -57,23 +57,40 @@ async function seedProducts(categoryMap) {
         const { data } = await axios.get(`${API_BASE}?limit=0`);
         const products = data.products;
         
-        // Insertar en lotes
-        for (let i = 0; i < products.length; i += BATCH_SIZE) {
-            const batch = products.slice(i, i + BATCH_SIZE);
-            const itemsToInsert = batch.map(product => 
-                mapProductToSchema(product, categoryMap)
-            );
+        // Nuevo: Crear operaciones bulk personalizadas
+        const bulkOps = [];
+        const existingNames = new Set();
+
+        // Pre-cargar nombres existentes
+        const existingItems = await Item.find({}, 'name');
+        existingItems.forEach(item => existingNames.add(item.name));
+
+        for (const product of products) {
+            const mappedItem = mapProductToSchema(product, categoryMap);
             
-            await Item.insertMany(itemsToInsert, { ordered: false });
-            totalProductsAdded += itemsToInsert.length;
-            console.log(`📦 Lote ${i/BATCH_SIZE + 1} procesado (${itemsToInsert.length} productos)`);
+            // Verificar duplicados por nombre antes de agregar
+            if (!existingNames.has(mappedItem.name)) {
+                bulkOps.push({
+                    insertOne: {
+                        document: mappedItem
+                    }
+                });
+                existingNames.add(mappedItem.name);
+            }
         }
-        
+
+        // Ejecutar operaciones en lotes con delay
+        const BATCH_SIZE = 50;
+        for (let i = 0; i < bulkOps.length; i += BATCH_SIZE) {
+            const batch = bulkOps.slice(i, i + BATCH_SIZE);
+            await Item.bulkWrite(batch, { ordered: false });
+            totalProductsAdded += batch.length;
+            console.log(`📦 Lote ${i/BATCH_SIZE + 1} procesado (${batch.length} productos)`);
+            await new Promise(resolve => setTimeout(resolve, 200)); // Delay entre lotes
+        }
+
     } catch (error) {
         console.error('❌ Error insertando productos:', error.message);
-        if (error.code === 11000) {
-            console.log('⚠️ Algunos productos duplicados fueron omitidos');
-        }
     }
 }
 
