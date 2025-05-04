@@ -7,9 +7,9 @@ class AuthRepository extends IAuthRepository {
         try {
             console.log('🔍 Buscando usuario:', email);
             const user = await User.findOne({ email})
+                .populate('role')
                 .maxTimeMS(30000)
                 .lean();
-            
             if (!user) console.log('⚠️ Usuario no encontrado');
             return user;
             
