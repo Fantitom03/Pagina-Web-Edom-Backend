@@ -8,34 +8,20 @@ class AuthService {
     }
 
     async register(userData) {
-        // Validación de existencia en repositorio
-        const existingUser = await authRepository.findUserByEmail(
-            userData.email,
-            userData.username
-        );
+        const existingUser = await this.repository.findUserByEmail(userData.email);
+        if (existingUser) throw new Error('Usuario o email ya existe');
 
-        if (existingUser) {
-            throw new Error(
-                existingUser.email === userData.email
-                    ? 'El correo ya está registrado'
-                    : 'El nombre de usuario ya existe'
-            );
-        }
-
-        // Lógica de negocio
         const hashedPassword = await bcrypt.hash(userData.password, 10);
-        const clientRole = await authRepository.findRoleByName('client');
+        const defaultRole = await this.repository.findRoleByName('client');
+        if (!defaultRole) throw new Error('Rol por defecto no encontrado');
 
-        if (!clientRole) {
-            throw new Error('Rol por defecto no configurado');
-        }
-
-        // Creación mediante repositorio
-        return authRepository.createUser({
+        const newUser = await this.repository.createUser({
             ...userData,
             password: hashedPassword,
-            role: clientRole._id
+            role: defaultRole._id
         });
+
+        return this._formatUserResponse(newUser);
     }
 
     async login(credentials) {

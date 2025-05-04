@@ -6,9 +6,8 @@ class AuthRepository extends IAuthRepository {
     async findUserByEmail(email) {
         try {
             console.log('🔍 Buscando usuario:', email);
-            const user = await User.findOne({
-                $or: [{ email }, { username }]})
-                .populate('role') 
+            const user = await User.findOne({ email})
+                .populate('role')
                 .maxTimeMS(30000)
                 .lean();
             if (!user) console.log('⚠️ Usuario no encontrado');
