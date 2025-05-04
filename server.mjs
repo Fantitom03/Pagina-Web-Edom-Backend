@@ -1,9 +1,8 @@
-import './src/config/dbConfig.js'; // 👈 Primero la conexión a DB
+import { connectDB } from './src/config/dbConfig.js';
 import express from 'express';
 import cors from 'cors';
 import routes from './src/routes/index.js';
 
-import { connectDB } from './src/config/dbConfig.js';
 
 connectDB();
 
