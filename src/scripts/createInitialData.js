@@ -3,37 +3,36 @@ import Permission from '../models/Permission.js';
 import Role from '../models/Role.js';
 import { connectDB, closeDb } from '../config/dbConfig.js';
 
-// Definición de permisos
 const initialPermissions = [
     // Permisos para Items
-    { name: 'read:items', description: 'Puede ver items y sus detalles' },
-    { name: 'create:items', description: 'Puede crear nuevos items' },
-    { name: 'update:items', description: 'Puede modificar items existentes' },
-    { name: 'delete:items', description: 'Puede eliminar items' },
+    { name: 'read:items', description: 'Ver productos' },
+    { name: 'create:items', description: 'Crear productos' },
+    { name: 'update:items', description: 'Modificar productos' },
+    { name: 'delete:items', description: 'Eliminar productos' },
 
-    // Permisos para Métodos de Pago
-    { name: 'read:paymentMethods', description: 'Puede ver métodos de pago' },
-    { name: 'create:paymentMethods', description: 'Puede crear métodos de pago' },
-    { name: 'update:paymentMethods', description: 'Puede modificar métodos de pago' },
-    { name: 'delete:paymentMethods', description: 'Puede eliminar métodos de pago' },
+    // Permisos para Categorías (nuevos)
+    { name: 'read:categories', description: 'Ver categorías' },
+    { name: 'create:categories', description: 'Crear categorías' },
+    { name: 'update:categories', description: 'Modificar categorías' },
+    { name: 'delete:categories', description: 'Eliminar categorías' },
 
-    // Permisos para Pagos
-    { name: 'create:payments', description: 'Puede realizar pagos' },
+    // Permisos para Usuarios
+    { name: 'read:users', description: 'Ver usuarios' },
+    { name: 'update:users', description: 'Modificar usuarios' },
+    { name: 'delete:users', description: 'Eliminar usuarios' },
 
-    // Permisos administrativos
-    { name: 'manage:users', description: 'Puede gestionar usuarios' },
-    { name: 'manage:roles', description: 'Puede gestionar roles' }
+    // Permisos administrativos globales
+    { name: 'manage:all', description: 'Acceso completo al sistema' }
 ];
 
-// Definición de roles con sus permisos
+// 👥 Roles actualizados con nueva estructura
 const initialRoles = [
     {
         name: 'client',
-        description: 'Usuario normal',
+        description: 'Usuario comprador',
         permissions: [
             'read:items',
-            'read:paymentMethods',
-            'create:payments'
+            'read:categories'
         ]
     },
     {
@@ -44,25 +43,21 @@ const initialRoles = [
             'create:items',
             'update:items',
             'delete:items',
-            'read:paymentMethods',
-            'create:payments'
+            'read:categories'
         ]
     },
     {
         name: 'admin',
-        description: 'Administrador del sistema',
+        description: 'Administrador total',
         permissions: [
-            'read:items',
-            'create:items',
-            'update:items',
-            'delete:items',
-            'read:paymentMethods',
-            'create:paymentMethods',
-            'update:paymentMethods',
-            'delete:paymentMethods',
-            'create:payments',
-            'manage:users',
-            'manage:roles'
+            'manage:all', // Permiso maestro que cubre todo
+            'read:users',
+            'update:users',
+            'delete:users',
+            'read:categories',
+            'create:categories',
+            'update:categories',
+            'delete:categories'
         ]
     }
 ];

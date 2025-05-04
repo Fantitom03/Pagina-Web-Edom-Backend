@@ -33,36 +33,26 @@ export const authenticateToken = (req, res, next) => {
 export const hasPermission = (requiredPermission) => {
     return async (req, res, next) => {
         try {
-            if (!req.user) {
-                return res.status(401).json({ message: 'No autenticado' });
-            }
-
-            // Obtener usuario con rol y permisos populados
             const user = await User.findById(req.user.id)
                 .populate({
                     path: 'role',
-                    populate: {
-                        path: 'permissions'
-                    }
+                    populate: { path: 'permissions' }
                 });
 
-
-            const hasPermission = user.role.permissions.some(
-                permission => permission.name === requiredPermission
+            const hasAccess = user.role.permissions.some(perm => 
+                perm.name === requiredPermission || 
+                perm.name === 'manage:all'
             );
 
-            if (!hasPermission) {
-                return res.status(403).json({
-                    message: 'No tienes permiso para realizar esta acción'
-                });
-            }
-
+            if (!hasAccess) return res.status(403).json({ message: 'Acceso denegado' });
+            
             next();
         } catch (error) {
             next(error);
         }
     };
 };
+
 
 // Middleware de autorización por rol
 export const authorize = (roleName) => {
