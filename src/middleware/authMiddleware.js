@@ -52,19 +52,3 @@ export const hasPermission = (requiredPermission) => {
         }
     };
 };
-
-
-// Middleware de autorización por rol
-export const authorize = (roleName) => {
-    return async (req, res, next) => {
-        try {
-            const user = await User.findById(req.user.id).populate('role');
-            if (user.role.name !== roleName) {
-                return res.status(403).json({ message: "Acceso no autorizado" });
-            }
-            next();
-        } catch (error) {
-            res.status(500).json({ message: "Error del servidor" });
-        }
-    };
-};

@@ -6,33 +6,33 @@ import {
     updateUser,
     deleteUser
 } from '../controllers/userController.js';
-import { authenticateToken, authorize } from '../middleware/authMiddleware.js';
+import { authenticateToken, hasPermission } from '../middleware/authMiddleware.js';
 
 // GET /api/users (Listar todos los usuarios)
 router.get('/',
     authenticateToken,
-    authorize('admin'),
+    hasPermission('read:users'),
     listUsers
 );
 
 // GET /api/users/search?username=... (Buscar usuarios por nombre)
 router.get('/search',
     authenticateToken,
-    authorize('admin'),
+    hasPermission('read:users'),
     searchUsers
 );
 
 // PUT /api/users/:id (Actualizar usuario)
 router.put('/:id',
     authenticateToken,
-    authorize('admin'),
+    hasPermission('update:users'),
     updateUser
 );
 
 // DELETE /api/users/:id (Eliminar usuario)
 router.delete('/:id',
     authenticateToken,
-    authorize('admin'),
+    hasPermission('delete:users'),
     deleteUser
 );
 
