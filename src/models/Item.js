@@ -34,7 +34,13 @@ const itemSchema = new Schema({
     type: Schema.Types.ObjectId, 
     ref: 'Category', 
     required: true 
+  },
+
+  image: {
+    type: String,
+    default: "https://res.cloudinary.com/demo/image/upload/v1626282453/default-appliance.jpg"
   }
+
 }, { timestamps: true });
 
 // Virtual para precio final con descuento

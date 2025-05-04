@@ -24,26 +24,29 @@ const itemsData = [
     {
         name: "Refrigerador Samsung Side by Side",
         quantity: 15,
-        description: "Refrigerador de 22 pies cúbicos con dispensador de agua y hielo, tecnología Twin Cooling Plus y diseño elegante en acero inoxidable.",
+        description: "Refrigerador de 22 pies cúbicos con dispensador de agua y hielo...",
         price: 1299.99,
         discount: 10,
-        category: null // Se actualizará con ID real
+        category: null,
+        image: "https://i.imgur.com/5bXqJ8R.jpg" // Imagen realista
     },
     {
         name: "Lavadora LG Carga Frontal",
         quantity: 20,
-        description: "Lavadora inteligente de 4.5 pies cúbicos con tecnología AI DD, motor Inverter Direct Drive y conexión Wi-Fi para control remoto.",
+        description: "Lavadora inteligente de 4.5 pies cúbicos con tecnología AI DD...",
         price: 799.99,
         discount: 5,
-        category: null // Se actualizará con ID real
+        category: null,
+        image: "https://i.imgur.com/8zN7w9T.jpg"
     },
     {
         name: "Horno Microondas Panasonic",
         quantity: 30,
-        description: "Microondas de 1.2 pies cúbicos con función inverter, 10 niveles de potencia y diseño compacto para espacios reducidos.",
+        description: "Microondas de 1.2 pies cúbicos con función inverter...",
         price: 149.99,
         discount: 0,
-        category: null // Se actualizará con ID real
+        category: null,
+        image: "https://i.imgur.com/3KjLQ6d.jpg"
     }
 ];
 
