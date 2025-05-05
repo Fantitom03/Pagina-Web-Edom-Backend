@@ -1,5 +1,5 @@
 import Item from '../models/Item.js';
-import Category from '../models/Category.js'; 
+import Category from '../models/Category.js';
 import IItemRepository from './IRepositories/IItemRepository.js';
 
 export default class ItemRepository extends IItemRepository {
@@ -11,7 +11,9 @@ export default class ItemRepository extends IItemRepository {
     }
 
     async getById(id) {
-        const item = await Item.findById(id);
+        const item = await Item.findById(id)
+            .select('-__v')
+            .populate('category', 'name');
         if (!item) throw new Error('Item no encontrado');
         return item;
     }
