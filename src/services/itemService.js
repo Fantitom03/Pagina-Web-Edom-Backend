@@ -1,4 +1,4 @@
-import ItemRepository from '../repositories/itemRepository.js';
+import ItemRepository from '../repositories/ItemRepository.js';
 
 class ItemService {
     constructor(repository) {
