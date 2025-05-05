@@ -1,96 +1,66 @@
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 import Item from '../models/Item.js';
-import Category from '../models/Category.js'; // Asegúrate de importar el modelo Category
-import 'dotenv/config';
+import Category from '../models/Category.js';
+import { v4 as uuid } from 'uuid';  // para generar sufijo único
 
-// Datos de categorías a insertar
-const categoriesData = [
-    {
-        name: "Electrodomésticos",
-        description: "Grandes electrodomésticos para el hogar"
-    },
-    {
-        name: "Electrónica",
-        description: "Dispositivos electrónicos y gadgets"
-    },
-    {
-        name: "Linea Blanca",
-        description: "Aparatos para la cocina y limpieza"
-    }
+dotenv.config();
+
+const CATEGORIES = [
+    { name: "Electrodomésticos", description: "Grandes electrodomésticos para el hogar" },
+    { name: "Electrónica", description: "Dispositivos electrónicos y gadgets" },
+    { name: "Línea Blanca", description: "Aparatos para la cocina y limpieza" }
 ];
 
-// Datos de los items actualizados con referencias a categorías
-const itemsData = [
-    {
-        name: "Refrigerador Samsung Side by Side",
-        quantity: 15,
-        description: "Refrigerador de 22 pies cúbicos con dispensador de agua y hielo...",
-        price: 1299.99,
-        discount: 10,
-        category: null,
-        image: "https://i.imgur.com/5bXqJ8R.jpg" // Imagen realista
-    },
-    {
-        name: "Lavadora LG Carga Frontal",
-        quantity: 20,
-        description: "Lavadora inteligente de 4.5 pies cúbicos con tecnología AI DD...",
-        price: 799.99,
-        discount: 5,
-        category: null,
-        image: "https://i.imgur.com/8zN7w9T.jpg"
-    },
-    {
-        name: "Horno Microondas Panasonic",
-        quantity: 30,
-        description: "Microondas de 1.2 pies cúbicos con función inverter...",
-        price: 149.99,
-        discount: 0,
-        category: null,
-        image: "https://i.imgur.com/3KjLQ6d.jpg"
-    }
-];
+async function pause(ms) {
+    return new Promise(res => setTimeout(res, ms));
+}
 
-const seedDB = async () => {
-    try {
-        await mongoose.connect(process.env.MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            serverSelectionTimeoutMS: 30000,
-            connectTimeoutMS: 30000,
-            socketTimeoutMS: 45000
+async function seed() {
+    await mongoose.connect(process.env.MONGODB_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    });
+    console.log('✅ Conectado a MongoDB');
+
+    // 1) Limpiar
+    await Category.deleteMany({});
+    await Item.deleteMany({});
+    console.log('🗑️ Colecciones limpiadas');
+
+    // 2) Insertar categorías
+    const createdCats = await Category.insertMany(CATEGORIES);
+    console.log('📂 Categorías creadas:', createdCats.map(c => c.name));
+
+    // 3) Generar 50 items
+    const items = [];
+    for (let i = 0; i < 50; i++) {
+        const cat = createdCats[i % createdCats.length]; // rotar categorías
+        const uniqueSuffix = uuid().slice(0, 8);
+        items.push({
+            name: `${cat.name} Modelo ${uniqueSuffix}`,
+            quantity: Math.floor(Math.random() * 100),
+            description: `Descripción para ${cat.name} modelo ${uniqueSuffix}`,
+            price: Number((Math.random() * 2000 + 50).toFixed(2)),
+            discount: Math.floor(Math.random() * 30),          // 0–29%
+            category: cat._id,
+            image: `https://picsum.photos/seed/${uniqueSuffix}/400/300`
         });
-        console.log('✅ Conectado a MongoDB');
-
-        // Limpiar colecciones
-        await Category.deleteMany({});
-        console.log('🗑️ Categorías antiguas eliminadas');
-        await Item.deleteMany({});
-        console.log('🗑️ Items antiguos eliminados');
-
-        // Insertar categorías
-        const createdCategories = await Category.insertMany(categoriesData);
-        console.log('📦 Categorías insertadas:', createdCategories.map(c => c.name));
-
-        // Mapear nombres de categoría a IDs
-        const categoryMap = createdCategories.reduce((acc, category) => {
-            acc[category.name] = category._id;
-            return acc;
-        }, {});
-
-        // Asignar IDs de categoría a los items
-        itemsData[0].category = categoryMap['Electrodomésticos'];
-        itemsData[1].category = categoryMap['Linea Blanca'];
-        itemsData[2].category = categoryMap['Electrónica'];
-
-        // Insertar items con referencias a categorías
-        const createdItems = await Item.insertMany(itemsData);
-        console.log('📦 Items insertados:', createdItems.map(i => i.name));
-
-        process.exit(0);
-    } catch (error) {
-        console.error('❌ Error:', error.message);
-        process.exit(1);
     }
-};
 
-seedDB();
+    // 4) Insertar en batches de 10 con delay
+    for (let i = 0; i < items.length; i += 10) {
+        const batch = items.slice(i, i + 10);
+        await Item.insertMany(batch, { ordered: false });
+        console.log(`📝 Insertados items ${i + 1}–${i + batch.length}`);
+        await pause(300);  // 300ms de pausa
+    }
+
+    console.log('🎉 Seed completado con 50 items únicos.');
+    process.exit(0);
+}
+
+seed().catch(err => {
+    console.error('❌ Error en seed:', err);
+    process.exit(1);
+});

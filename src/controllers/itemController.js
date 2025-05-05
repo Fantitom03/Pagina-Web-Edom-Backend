@@ -9,14 +9,14 @@ export async function listItems(req, res) {
     }
 }
 
-export async function getItem (req, res) {
+export async function getItem(req, res) {
     try {
         const item = await itemService.getById(req.params.id);
         res.json(item);
-    
-    } 
-    catch (e) { 
-        res.status(404).json({ message: e.message }); 
+
+    }
+    catch (e) {
+        res.status(404).json({ message: e.message });
     }
 }
 
@@ -25,39 +25,46 @@ export async function createItem(req, res) {
         const item = await itemService.create(req.body);
         res.status(201).json(item);
 
-    } catch (e) { 
-        res.status(400).json({ message: e.message }); 
+    } catch (e) {
+        res.status(400).json({ message: e.message });
     }
 }
 
-export async function updateItem (req, res) {
+export async function updateItem(req, res) {
     try {
         const item = await itemService.update(req.params.id, req.body);
         res.json(item);
 
-    } catch (e) { 
-        res.status(400).json({ message: e.message }); 
+    } catch (e) {
+        res.status(400).json({ message: e.message });
     }
 
 }
 
-export async function deleteItem (req, res) {
+export async function deleteItem(req, res) {
     try {
         await itemService.delete(req.params.id);
         res.json({ message: 'Item eliminado' });
 
-    } catch (e) { 
-        res.status(404).json({ message: e.message }); 
+    } catch (e) {
+        res.status(404).json({ message: e.message });
     }
 }
 
-export async function searchItems (req, res) {
+export async function searchItems(req, res) {
     try {
-        const filters = req.query;
+        // Mapea q → name
+        const { q, category, minPrice, maxPrice, page, limit } = req.query;
+        const filters = {
+            name: q,           // <— aquí
+            category,
+            minPrice,
+            maxPrice,
+            // opcional: page/limit si tu repo soporta paginar en búsqueda
+        };
         const items = await itemService.search(filters);
         res.json(items);
-
-    } catch (e) { 
-        res.status(400).json({ message: e.message }); 
+    } catch (e) {
+        res.status(400).json({ message: e.message });
     }
 }

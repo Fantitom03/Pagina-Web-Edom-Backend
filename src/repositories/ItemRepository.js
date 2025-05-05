@@ -39,10 +39,12 @@ export default class ItemRepository extends IItemRepository {
 
     async search(filters = {}) {
         const query = {};
+        
+        // si viene filters.q...
+        const term = filters.name ?? filters.q;
 
-        // Filtro por nombre (búsqueda parcial insensible a mayúsculas)
-        if (filters.name) {
-            query.name = { $regex: filters.name, $options: 'i' };
+        if (term) {
+            query.name = { $regex: term, $options: 'i' };
         }
 
         // Filtro por rango de precio
