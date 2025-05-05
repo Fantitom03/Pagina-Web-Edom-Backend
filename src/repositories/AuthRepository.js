@@ -7,7 +7,14 @@ class AuthRepository extends IAuthRepository {
         try {
             console.log('🔍 Buscando usuario:', email);
             const user = await User.findOne({ email})
-                .populate('role')
+                .populate({
+                    path: 'role',
+                    select: 'name permissions -_id',    // trae sólo nombre y array de permisos
+                    populate: {
+                        path: 'permissions',
+                        select: 'name description -_id'  // dentro del role, trae cada permiso con nombre y descripción
+                    }
+                })
                 .maxTimeMS(30000)
                 .lean();
             if (!user) console.log('⚠️ Usuario no encontrado');
