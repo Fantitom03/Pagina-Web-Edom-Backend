@@ -30,4 +30,12 @@ export default class UserRepository extends IUserRepository {
     async getRoles() {
         return Role.find().select('-__v');
     }
+
+    async getById(id) {
+        const user = await User.findById(id)
+            .select('-password')
+            .populate('role');
+        if (!user) throw new Error('Usuario no encontrado');
+        return user;
+    }
 }

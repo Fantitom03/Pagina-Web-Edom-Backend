@@ -19,6 +19,15 @@ export async function searchUsers(req, res) {
     }
 }
 
+export async function userID(req, res) {
+    try {
+        const user = await userService.userID(req.params.id);
+        res.json(user);
+    } catch (e) {
+        res.status(404).json({ message: e.message });
+    }
+}
+
 export async function updateUser(req, res) {
     try {
         const { id } = req.params;

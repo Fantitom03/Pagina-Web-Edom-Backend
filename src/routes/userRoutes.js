@@ -3,6 +3,7 @@ const router = express.Router();
 import {
     listUsers,
     searchUsers,
+    userID,
     updateUser,
     deleteUser,
     getRoles
@@ -21,6 +22,13 @@ router.get('/search',
     authenticateToken,
     hasPermission('read:users'),
     searchUsers
+);
+
+// GET /api/users/:id (Obtener un usuario por ID)
+router.get('/:id',
+    authenticateToken,
+    hasPermission('read:users'),
+    userID
 );
 
 //GET /api/users/roles

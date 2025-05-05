@@ -41,6 +41,12 @@ class UserService {
     async getRoles() {
         return this.repository.getRoles();
     }
+
+    async userID(id) {
+        const user = await this.repository.getById(id);
+        if (!user) throw new Error('Usuario no encontrado');
+        return user;
+    }
 }
 
 export default new UserService(new UserRepository());
