@@ -1,34 +1,56 @@
-import ItemRepository from '../repositories/ItemRepository.js';
+import itemService from '../services/itemService.js';
 
-class ItemService {
-    constructor(repository) {
-        this.repository = repository;
-    }
-
-    async list(page, limit) {
-        return this.repository.list(page, limit);
-    }
-
-    async getById(id) {
-        return this.repository.getById(id);
-    }
-
-    async create(data) {
-        return this.repository.create(data);
-    }
-
-    async update(id, data) {
-        return this.repository.update(id, data);
-    }
-
-    async delete(id) {
-        return this.repository.delete(id);
-    }
-
-    async search(filters) {
-        return this.repository.search(filters);
+export async function listItems(req, res) {
+    try {
+        const items = await itemService.list(req.query.page, req.query.limit);
+        res.json(items);
+    } catch (e) {
+        res.status(500).json({ message: e.message });
     }
 }
 
-// Inyección de dependencia
-export default new ItemService(new ItemRepository());
+export async function getItem(req, res) {
+    try {
+        const item = await itemService.getById(req.params.id);
+        res.json(item);
+
+    }
+    catch (e) {
+        res.status(404).json({ message: e.message });
+    }
+}
+
+export async function createItem(req, res) {
+    try {
+        const item = await itemService.create(req.body);
+        res.status(201).json(item);
+
+    } catch (e) {
+        res.status(400).json({ message: e.message });
+    }
+}
+
+export async function updateItem(req, res) {
+    try {
+        const item = await itemService.update(req.params.id, req.body);
+        res.json(item);
+
+    } catch (e) {
+        res.status(400).json({ message: e.message });
+    }
+
+}
+
+export async function deleteItem(req, res) {
+    try {
+        await itemService.delete(req.params.id);
+        res.json({ message: 'Item eliminado' });
+
+    } catch (e) {
+        res.status(404).json({ message: e.message });
+    }
+}
+
+export async function search(filters, page, limit) {
+    return this.repo.search(filters, page, limit);
+}

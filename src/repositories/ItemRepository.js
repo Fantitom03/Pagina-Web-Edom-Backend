@@ -37,36 +37,48 @@ export default class ItemRepository extends IItemRepository {
         return item;
     }
 
-    async search(filters = {}) {
+    async search(filters = {}, page = 1, limit = 10) {
         const query = {};
 
-        // Filtro por nombre (búsqueda parcial insensible a mayúsculas)
+        // name
         if (filters.name) {
             query.name = { $regex: filters.name, $options: 'i' };
         }
 
-        // Filtro por rango de precio
+        // price range
         if (filters.minPrice || filters.maxPrice) {
             query.price = {};
             if (filters.minPrice) query.price.$gte = Number(filters.minPrice);
             if (filters.maxPrice) query.price.$lte = Number(filters.maxPrice);
         }
 
-        // Filtro por categoría (ID o nombre)
+        // category
         if (filters.category) {
             if (mongoose.Types.ObjectId.isValid(filters.category)) {
                 query.category = filters.category;
             } else {
-                const category = await Category.findOne({ name: filters.category });
-                if (category) query.category = category._id;
+                const cat = await Category.findOne({ name: filters.category });
+                if (cat) query.category = cat._id;
             }
         }
 
-        // Otros filtros (ej.: stock mínimo)
-        if (filters.minStock) {
-            query.quantity = { $gte: Number(filters.minStock) };
-        }
+        // pagination
+        const skip = (page - 1) * limit;
+        const [items, total] = await Promise.all([
+            Item.find(query)
+                .skip(skip)
+                .limit(limit)
+                .populate('category', 'name'),
+            Item.countDocuments(query)
+        ]);
 
-        return Item.find(query).populate('category'); // Incluye datos completos de la categoría
+        const pagination = {
+            page,
+            totalPages: Math.ceil(total / limit),
+            total,
+            limit
+        };
+
+        return { items, pagination };
     }
 }
