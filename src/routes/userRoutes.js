@@ -4,7 +4,8 @@ import {
     listUsers,
     searchUsers,
     updateUser,
-    deleteUser
+    deleteUser,
+    getRoles
 } from '../controllers/userController.js';
 import { authenticateToken, hasPermission } from '../middleware/authMiddleware.js';
 
@@ -22,6 +23,13 @@ router.get('/search',
     searchUsers
 );
 
+//GET /api/users/roles
+router.get('/roles',
+    authenticateToken,
+    hasPermission('read:users'), 
+    getRoles
+);
+
 // PUT /api/users/:id (Actualizar usuario)
 router.put('/:id',
     authenticateToken,
@@ -35,6 +43,7 @@ router.delete('/:id',
     hasPermission('delete:users'),
     deleteUser
 );
+
 
 
 export default router;

@@ -38,3 +38,12 @@ export async function deleteUser(req, res) {
         res.status(404).json({ message: e.message });
     }
 }
+
+export async function getRoles(req, res) {
+    try {
+        const roles = await userService.getRoles();
+        res.json(roles);
+    } catch (e) {
+        res.status(500).json({ message: e.message });
+    }
+}

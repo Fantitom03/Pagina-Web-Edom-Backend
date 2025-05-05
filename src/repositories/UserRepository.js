@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import IUserRepository from './IRepositories/IUserRepository.js';
+import Role from '../models/Role.js';
 
 export default class UserRepository extends IUserRepository {
     async list() {
@@ -24,5 +25,9 @@ export default class UserRepository extends IUserRepository {
         const user = await User.findByIdAndDelete(id);
         if (!user) throw new Error('Usuario no encontrado');
         return user;
+    }
+
+    async getRoles() {
+        return Role.find().select('-__v');
     }
 }

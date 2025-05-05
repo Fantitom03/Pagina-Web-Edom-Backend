@@ -37,6 +37,10 @@ class UserService {
     async delete(id) {
         return this.repository.delete(id);
     }
+
+    async getRoles() {
+        return this.repository.getRoles();
+    }
 }
 
 export default new UserService(new UserRepository());
