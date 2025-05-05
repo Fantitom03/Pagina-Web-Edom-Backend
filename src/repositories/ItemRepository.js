@@ -1,6 +1,7 @@
 import Item from '../models/Item.js';
 import Category from '../models/Category.js';
 import IItemRepository from './IRepositories/IItemRepository.js';
+import mongoose from 'mongoose';
 
 export default class ItemRepository extends IItemRepository {
     async list(page = 1, limit = 10) {
