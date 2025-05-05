@@ -7,7 +7,7 @@ export default class ItemRepository extends IItemRepository {
         const skip = (page - 1) * limit;
         const items = await Item.find().skip(skip).limit(limit);
         const total = await Item.countDocuments();
-        return { items, pagination: { page, totalPages: Math.ceil(total / limit), total } };
+        return { items, pagination: { page, totalPages: Math.ceil(total / limit), total, limit } };
     }
 
     async getById(id) {
