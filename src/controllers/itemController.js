@@ -53,17 +53,22 @@ export async function deleteItem(req, res) {
 
 export async function searchItems(req, res) {
     try {
-        // Mapea q → name
+        // Desempaqueta q y los otros filtros
         const { q, category, minPrice, maxPrice, page, limit } = req.query;
+
+        // Reconstruye un objeto filters que tu repositorio espera
         const filters = {
-            name: q,           // <— aquí
+            name: q,           // <-- aquí mapeas q → name
             category,
             minPrice,
             maxPrice,
-            // opcional: page/limit si tu repo soporta paginar en búsqueda
+            page,              // si tu repo lo soporta
+            limit
         };
-        const items = await itemService.search(filters);
-        res.json(items);
+
+        const result = await itemService.search(filters);
+        // si listItems devolvía { items, pagination }, repite ese shape
+        res.json(result);
     } catch (e) {
         res.status(400).json({ message: e.message });
     }
