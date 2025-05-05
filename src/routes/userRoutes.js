@@ -17,6 +17,13 @@ router.get('/',
     listUsers
 );
 
+//GET /api/users/roles
+router.get('/roles',
+    authenticateToken,
+    hasPermission('read:users'), 
+    getRoles
+);
+
 // GET /api/users/search?username=... (Buscar usuarios por nombre)
 router.get('/search',
     authenticateToken,
@@ -29,13 +36,6 @@ router.get('/:id',
     authenticateToken,
     hasPermission('read:users'),
     userID
-);
-
-//GET /api/users/roles
-router.get('/roles',
-    authenticateToken,
-    hasPermission('read:users'), 
-    getRoles
 );
 
 // PUT /api/users/:id (Actualizar usuario)
