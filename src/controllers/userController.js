@@ -28,16 +28,6 @@ export async function userID(req, res) {
     }
 }
 
-export async function createUser(req, res) {
-    try {
-        const data = req.body;
-        const user = await userService.create(data);
-        res.status(201).json(user);
-    } catch (e) {
-        res.status(400).json({ message: e.message });
-    }
-}
-
 export async function updateUser(req, res) {
     try {
         const { id } = req.params;

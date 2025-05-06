@@ -13,12 +13,6 @@ export default class UserRepository extends IUserRepository {
             .select('-password -__v')
     }
 
-    async create(data) {
-        const user = new User(data);
-        await user.save();
-        return user;
-    }
-
     async update(id, data) {
         const user = await User.findByIdAndUpdate(id, data, { new: true })
             .select('-password')
