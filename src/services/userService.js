@@ -1,7 +1,6 @@
 import UserRepository from '../repositories/UserRepository.js';
 import Role from '../models/Role.js';
 import mongoose from 'mongoose';
-import authRepository from '../repositories/AuthRepository.js';
 
 class UserService {
     constructor(repository) {
