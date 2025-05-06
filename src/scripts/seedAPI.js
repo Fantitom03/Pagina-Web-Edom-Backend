@@ -6,8 +6,9 @@ import Category from '../models/Category.js';
 
 // 1. Configuración inicial
 const API_BASE = 'https://dummyjson.com/products';
-const BATCH_SIZE = 50; // Para evitar sobrecargar la API y la DB
 let totalProductsAdded = 0;
+const ITEM_LIMIT = 20; // Limitar a 20 productos
+const DELAY_BETWEEN_INSERTS = 1000; // 1 segundo entre inserciones
 
 // 2. Función para mapear los datos de la API a tu esquema
 const mapProductToSchema = (apiProduct, categoryMap) => {
@@ -54,39 +55,37 @@ async function processCategories() {
 // 4. Poblar productos
 async function seedProducts(categoryMap) {
     try {
-        const { data } = await axios.get(`${API_BASE}?limit=0`);
+        // Obtener solo 20 productos
+        const { data } = await axios.get(`${API_BASE}?limit=${ITEM_LIMIT}`);
         const products = data.products;
-        
-        // Nuevo: Crear operaciones bulk personalizadas
-        const bulkOps = [];
-        const existingNames = new Set();
 
-        // Pre-cargar nombres existentes
-        const existingItems = await Item.find({}, 'name');
-        existingItems.forEach(item => existingNames.add(item.name));
+        console.log(`📦 Obtenidos ${products.length} productos de la API`);
+
+        // Comprobar productos existentes de manera eficiente
+        const productNames = products.map(p => p.title);
+        const existingProducts = await Item.find({ name: { $in: productNames } }).select('name');
+        const existingNames = new Set(existingProducts.map(p => p.name));
+
+        // Preparar operaciones de inserción
+        const productsToInsert = [];
 
         for (const product of products) {
-            const mappedItem = mapProductToSchema(product, categoryMap);
-            
-            // Verificar duplicados por nombre antes de agregar
-            if (!existingNames.has(mappedItem.name)) {
-                bulkOps.push({
-                    insertOne: {
-                        document: mappedItem
-                    }
-                });
-                existingNames.add(mappedItem.name);
+            if (!existingNames.has(product.title)) {
+                productsToInsert.push(mapProductToSchema(product, categoryMap));
+            } else {
+                console.log(`⚠️ Producto ya existe: ${product.title}`);
             }
         }
 
-        // Ejecutar operaciones en lotes con delay
-        const BATCH_SIZE = 50;
-        for (let i = 0; i < bulkOps.length; i += BATCH_SIZE) {
-            const batch = bulkOps.slice(i, i + BATCH_SIZE);
-            await Item.bulkWrite(batch, { ordered: false });
-            totalProductsAdded += batch.length;
-            console.log(`📦 Lote ${i/BATCH_SIZE + 1} procesado (${batch.length} productos)`);
-            await new Promise(resolve => setTimeout(resolve, 200)); // Delay entre lotes
+        // Insertar productos uno por uno con delay
+        for (let i = 0; i < productsToInsert.length; i++) {
+            const product = productsToInsert[i];
+            await Item.create(product);
+            totalProductsAdded++;
+            console.log(`✅ [${i + 1}/${productsToInsert.length}] Producto agregado: ${product.name}`);
+
+            // Añadir delay entre inserciones
+            await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_INSERTS));
         }
 
     } catch (error) {
