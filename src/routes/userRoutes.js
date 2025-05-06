@@ -2,6 +2,7 @@ import express from 'express';
 const router = express.Router();
 import {
     listUsers,
+    createUser,
     searchUsers,
     userID,
     updateUser,
@@ -36,6 +37,13 @@ router.get('/:id',
     authenticateToken,
     hasPermission('read:users'),
     userID
+);
+
+//POST /api/users (Crear un nuevo usuario)
+router.post('/',
+    authenticateToken,
+    hasPermission('create:users'),
+    creteUser
 );
 
 // PUT /api/users/:id (Actualizar usuario)
