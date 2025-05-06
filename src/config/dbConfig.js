@@ -1,5 +1,6 @@
-import 'dotenv/config'; // 👈 ¡Añade esto al inicio!
+import 'dotenv/config';
 import mongoose from 'mongoose';
+import { ensureDefaultCategory } from '../utils/ensureDefaultCategory.js';
 
 export async function connectDB() {
   try {
@@ -16,14 +17,12 @@ export async function connectDB() {
       maxPoolSize: 10
     };
 
-    const conn = await mongoose.connect(process.env.MONGODB_URI, options);
-    
-    // Verificación EXTRA
-    const userCount = await mongoose.connection.db.collection('users').countDocuments();
-    console.log("👥 Usuarios en DB:", userCount);
+    const conn = await mongoose.connect(process.env.MONGODB_URI, options)
+      .then(async () => { await ensureDefaultCategory() });
+
 
     return conn;
-    
+
   } catch (error) {
     console.error("❌ Error de conexión:", error.message);
     process.exit(1);

@@ -20,7 +20,7 @@ export const authenticateToken = (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         // Guardamos la información del usuario decodificada en el objeto request
         req.user = decoded;
-        // Continuamos con la siguiente función middleware
+
         next();
     } catch (error) {
         // Si el token es inválido, devolvemos error 403 (Prohibido)

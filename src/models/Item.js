@@ -36,7 +36,7 @@ const itemSchema = new Schema({
     required: true 
   },
 
-  image: {
+  image: { // URL de la imagen (opcional) :contentReference[oaicite:5]{index=5}
     type: String,
     default: "https://res.cloudinary.com/demo/image/upload/v1626282453/default-appliance.jpg"
   }
