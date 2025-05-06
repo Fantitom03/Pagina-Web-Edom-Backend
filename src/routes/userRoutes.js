@@ -43,7 +43,7 @@ router.get('/:id',
 router.post('/',
     authenticateToken,
     hasPermission('create:users'),
-    creteUser
+    createUser
 );
 
 // PUT /api/users/:id (Actualizar usuario)
