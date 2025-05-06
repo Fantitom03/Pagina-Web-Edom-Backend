@@ -1,4 +1,6 @@
 import CategoryRepository from '../repositories/CategoryRepository.js';
+import Item from '../models/Item.js';
+import Category from '../models/Category.js';
 
 class CategoryService {
     constructor(repository) {
@@ -22,6 +24,22 @@ class CategoryService {
     }
 
     async delete(id) {
+        // 1️⃣ Encontrar o crear la categoría "Sin categoría"
+        let defaultCat = await Category.findOne({ name: 'Sin categoría' });
+        if (!defaultCat) {
+            defaultCat = await Category.create({
+                name: 'Sin categoría',
+                description: 'Productos sin categoría asignada'
+            });
+        }
+
+        // 2️⃣ Reasignar todos los Items que apuntan a la categoría que vamos a borrar
+        await Item.updateMany(
+            { category: id },
+            { category: defaultCat._id }
+        );
+
+        // 3️⃣ Borrar la categoría en sí
         return this.repository.delete(id);
     }
 }
